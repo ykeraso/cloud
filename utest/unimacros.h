@@ -28,4 +28,7 @@ int evaluate();
  */
 void SET_TEST_MODE(int i);
 
+#define AND &&
+#define OR  ||
+
 #endif

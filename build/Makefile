@@ -19,6 +19,8 @@ GCC=gcc
 GCCFLAGS=-Wall -O3 -o
 
 CIN=-I ../include
+CINLIB= -I ../Libs/include
+
 
 #Test parameters
 CINUNIT=-I $(ROOTUNIT)
@@ -30,6 +32,7 @@ UNI_O= $(OUTDIR)uni.o
 #Libraries
 LIBS = \
 	../Libs/ServDiscLib
+
 	
 LIBLINK := $(foreach lib, $(LIBS), -L$(BASEDIR)/$(lib)/build -l$(notdir $(lib)) ) 
  
@@ -43,18 +46,39 @@ SRC_O=$(OUTDIR)src.o
 
 OBJS=$(MAIN_O) $(SRC_O) $(TEST_O)
 
+#debug level
+ifeq ($(D),error)
+	DEBUG_LEVEL=1
+	C99=-std=c99
+else 
+	ifeq ($(D),trace)
+		DEBUG_LEVEL=2
+		C99=--std=c99
+	else
+		ifeq ($(D),all)
+			DEBUG_LEVEL=3
+			C99=--std=c99
+		else
+			DEBUG_LEVEL=0
+		endif
+	endif
+endif
+
+#precompile variables
+DFLAGS=-DDEBUG_LEVEL=$(DEBUG_LEVEL)
+
 # Targets 
 
 ifeq ($(SKIP_TEST),true)
 all: directories libs default
 else
-all: directories libs default test_all
+all: directories libs default install_lib test_all
 endif
 
 directories: $(OUTDIR)
 
 libs:
-	$(foreach lib,$(LIBS),$(MAKE) -C $(lib)/build )
+	$(foreach lib,$(LIBS),$(MAKE) -C $(lib)/build $(D))
 	
 
 default: $(EXE)
@@ -67,13 +91,15 @@ memtest: directories test $(EXE) $(EXETEST)
 	valgrind --leak-check=yes ./$(EXE)
 	valgrind --leak-check=yes ./$(EXETEST) reg
 
+install_lib:
+	$(foreach libpath, $(LIBS), sudo cp $(BASEDIR)/$(libpath)/build/lib* /usr/lib)
 
 test_all: test $(EXETEST)
 	rm -f $(TEST_O)
 	./$(EXETEST) reg > $(TESTOUTFILE)
 	
 test:
-	$(foreach file,$(TEST_C),($(GCC) -c $(file) $(CINUNIT) $(CIN));)
+	$(foreach file,$(TEST_C),($(GCC) -c $(file) $(CINUNIT) $(CIN) $(CINLIB) );)
 
 $(OUTDIR):
 	$(MKDIR_P) $(OUTDIR)
@@ -82,17 +108,17 @@ $(EXE): $(MAIN_O)
 	$(GCC) $(GCCFLAGS) $(EXE) $(MAIN_O) $(LIBLINK)
 
 $(EXETEST): $(TEST_O) $(UNI_O)
-	$(GCC) $(GCCFLAGS) $(EXETEST) $(TEST_O) $(UNI_O)
+	$(GCC) $(GCCFLAGS) $(EXETEST) $(TEST_O) $(UNI_O) $(LIBLINK)
 	
 
 $(MAIN_O): $(MAIN_C)
-	$(GCC) -c $(MAIN_C) -o $(MAIN_O) $(CIN)
+	$(GCC) -c $(MAIN_C) -o $(MAIN_O) $(CIN) $(DFLAGS)
 
 $(SRC_O): $(SRC_C)
-	$(GCC) -c $(SRC_C) -o $(SRC_O) $(CIN)
+	$(GCC) -c $(SRC_C) -o $(SRC_O) $(CIN) $(DFLAGS)
 
 $(UNI_O): $(UNI_C)
-	$(GCC) -c $(UNI_C) -o $(UNI_O) $(CIN)
+	$(GCC) -c $(UNI_C) -o $(UNI_O) $(CIN) $(DFLAGS)
 	
 
 clean:

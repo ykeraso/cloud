@@ -14,8 +14,8 @@ struct _Snode{
 typedef
 struct _Slist{
 	unsigned short number_of_data;
-	unsigned short max_number_of_data;
-	void *point;
+	void **point;
+	void **data;
 
 
 }List_t;
@@ -23,7 +23,7 @@ struct _Slist{
 List_t List_create();
 void List_destroy(List_t *ls);
 
-Result List_insert(List_t *ls, node_t node);
+Result List_insert(List_t *ls, node_t *node);
 Result List_insert_first(List_t *ls, node_t node);
 Result List_insert_last(List_t *ls, node_t node);
 
@@ -34,6 +34,12 @@ Result List_delete_last(List_t *ls, node_t *node);
 Result List_show(List_t ls, node_t *node);
 Result List_show_first(List_t ls, node_t *node);
 Result List_show_last(List_t ls, node_t *node);
+
+Result List_first(List_t ls);
+Result List_last(List_t ls);
+Result List_next(List_t ls);
+Result List_previous(List_t ls);
+
 
 void *List_get_data_ptr(List_t ls,const char *service_name);
 

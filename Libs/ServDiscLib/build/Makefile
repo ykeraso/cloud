@@ -13,6 +13,28 @@ CFLAGS       = -fPIC -shared
 
 TARGET  = libServDiscLib.so
 
+#debug level
+ifeq ($(D),error)
+	DEBUG_LEVEL=1
+	C99=-std=c99
+else 
+	ifeq ($(D),trace)
+		DEBUG_LEVEL=2
+		C99=--std=c99
+	else
+		ifeq ($(D),all)
+			DEBUG_LEVEL=3
+			C99=--std=c99
+		else
+			DEBUG_LEVEL=0
+		endif
+	endif
+endif
+
+#precompile variables
+DFLAGS=-DDEBUG_LEVEL=$(DEBUG_LEVEL)
+
+
 # Sourc file of Lib
 SOURCES = \
 	../src/List.c 
@@ -23,7 +45,7 @@ OBJECT := $(BASESRC:.c=.o)
 all: obj $(TARGET)
 
 obj:
-	$(foreach file, $(SOURCES), ($(GCC) $(CFLO) $(file) $(CINLIB) $(CIN)) )
+	$(foreach file, $(SOURCES), ($(GCC) $(CFLO) $(file) $(CINLIB) $(CIN) $(C99) $(DFLAGS) ))
 
 $(TARGET):
 	$(GCC) $(CFLSO) $(TARGET) $(OBJECT)
