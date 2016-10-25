@@ -78,7 +78,7 @@ endif
 directories: $(OUTDIR)
 
 libs:
-	$(foreach lib,$(LIBS),$(MAKE) -C $(lib)/build $(D))
+	$(foreach lib,$(LIBS),$(MAKE) -C $(lib)/build D=$(D))
 	
 
 default: $(EXE)
