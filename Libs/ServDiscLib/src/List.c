@@ -126,6 +126,7 @@ Result List_insert(List_t *ls, node_t node_data){
 }
 
 Result List_insert_first(List_t *ls, node_t node){
+
 	return Success;
 }
 
@@ -133,6 +134,9 @@ Result List_insert_last(List_t *ls, node_t node){
 	return Success;
 }
 
+/**
+ * List show procedyres
+ */
 Result List_show(List_t ls, node_t *node)
 {
 	TRACE_IN
@@ -146,7 +150,8 @@ Result List_show(List_t ls, node_t *node)
 	}
 	if ( ls.point == NULL){
 		*node = *(node_t*)(ls.data + (ls.number_of_data - 1)*sizeof(node_t) );
-		printf("%s - %ld\n", node->service_name, (long)node->data_ptr);
+LOG("delete this line")
+printf("%s - %ld\n", node->service_name, (long)node->data_ptr);
 		TRACE_OUT
 		return Success;
 	}else{
@@ -160,16 +165,7 @@ Result List_show(List_t ls, node_t *node)
 Result List_show_first(List_t ls, node_t *node){
 	TRACE_IN
 	if ( is_empty_list(ls) )return Empty_list;
-	if ( ls.point == NULL){
-		*node = *(node_t*)(ls.data + ls.number_of_data - 1);
-		TRACE_OUT
-		return Success;
-	}else{
-		*node = *(node_t*)(ls.point);
-		TRACE_OUT
-		return Success;
-	}
-	return Success;
+	*node = *(node_t*)(ls.data);;
 	TRACE_OUT
 	return Success;
 }
@@ -177,6 +173,8 @@ Result List_show_first(List_t ls, node_t *node){
 Result List_show_last(List_t ls, node_t *node){
 	TRACE_IN
 	if ( is_empty_list(ls) )return Empty_list;
+	*node = *(node_t*)(ls.data + (ls.number_of_data - 1)*sizeof(node_t) );
+	printf("%s - %ld\n", node->service_name, (long)node->data_ptr);
 	TRACE_OUT
 	return Success;
 }
@@ -202,30 +200,57 @@ Result List_delete_last(List_t *ls, node_t *node){
 	return Success;
 }
 
-Result List_first(List_t ls){
+Result List_first(List_t *ls){
 	TRACE_IN
-	if ( is_empty_list(ls) )return Empty_list;
+	if ( is_empty_list(*ls) )return Empty_list;
+	ls->point = ls->data;
 	TRACE_OUT
 	return Success;
 }
 
-Result List_last(List_t ls){
+Result List_last(List_t *ls){
 	TRACE_IN
-	if ( is_empty_list(ls) )return Empty_list;
+	if ( is_empty_list(*ls) )return Empty_list;
+	ls->point = ls->data + (ls->number_of_data - 1)*sizeof(node_t);
 	TRACE_OUT
 	return Success;
 }
 
-Result List_next(List_t ls){
+Result List_next(List_t *ls){
 	TRACE_IN
-	if ( is_empty_list(ls) )return Empty_list;
+	if ( is_empty_list(*ls) )return Empty_list;
+	if ( ls->point == NULL ){
+		LOG("point at begin")
+		ls->point = ls->data;
+		TRACE_OUT
+		return Success;
+	}
+	ls->point += sizeof(node_t);
+	if (ls->point - ls->data == ls->number_of_data * sizeof(node_t) ){
+		LOG("List at end")
+		ls->point = ls->data;
+		TRACE_OUT
+		return Rewind_list;
+	}
 	TRACE_OUT
 	return Success;
 }
 
-Result List_previous(List_t ls){
+Result List_previous(List_t *ls){
 	TRACE_IN
-	if ( is_empty_list(ls) )return Empty_list;
+	if ( is_empty_list(*ls) )return Empty_list;
+	if ( ls->point == NULL ){
+		LOG("point at end")
+		ls->point = ls->data;
+		TRACE_OUT
+		return Success;
+	}
+	if ( ls->data == ls->point ){
+		ls->point = ls->data + (ls->number_of_data - 1)*sizeof(node_t);
+		TRACE_OUT
+		return Rewind_list;
+	}
+	ls->point -= sizeof(node_t);
 	TRACE_OUT
 	return Success;
 }

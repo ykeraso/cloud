@@ -35,10 +35,10 @@ Result List_show(List_t ls, node_t *node);
 Result List_show_first(List_t ls, node_t *node);
 Result List_show_last(List_t ls, node_t *node);
 
-Result List_first(List_t ls);
-Result List_last(List_t ls);
-Result List_next(List_t ls);
-Result List_previous(List_t ls);
+Result List_first(List_t *ls);
+Result List_last(List_t *ls);
+Result List_next(List_t *ls);
+Result List_previous(List_t *ls);
 
 
 void *List_get_data_ptr(List_t ls,const char *service_name);
