@@ -31,8 +31,8 @@ UNI_O= $(OUTDIR)uni.o
 
 #Libraries
 LIBS = \
-	../Libs/ServDiscLib
-
+	../Libs/ServDiscLib \
+	../Libs/ParserLib
 	
 LIBLINK := $(foreach lib, $(LIBS), -L$(BASEDIR)/$(lib)/build -l$(notdir $(lib)) ) 
  
@@ -78,7 +78,7 @@ endif
 directories: $(OUTDIR)
 
 libs:
-	$(foreach lib,$(LIBS),$(MAKE) -C $(lib)/build D=$(D))
+	$(foreach lib,$(LIBS),$(MAKE) -C $(lib)/build D=$(D);)
 	
 
 default: $(EXE)
@@ -88,11 +88,11 @@ run: $(EXE)
 
 memtest: directories test $(EXE) $(EXETEST)
 	rm -f $(TEST_O)
-	valgrind --leak-check=yes ./$(EXE)
-	valgrind --leak-check=yes ./$(EXETEST) reg
+	valgrind --leak-check=yes -v ./$(EXE)
+	valgrind --leak-check=yes -v ./$(EXETEST) reg
 
 install_lib:
-	$(foreach libpath, $(LIBS), sudo cp $(BASEDIR)/$(libpath)/build/lib* /usr/lib)
+	$(foreach libpath, $(LIBS), sudo cp $(BASEDIR)/$(libpath)/build/lib* /usr/lib;)
 
 test_all: test $(EXETEST)
 	rm -f $(TEST_O)
@@ -124,7 +124,7 @@ $(UNI_O): $(UNI_C)
 clean:
 	rm -rf ${OUTDIR}
 	$(foreach file,$(TEST_O),(rm -f $(file) );)
-	$(foreach lib, $(LIBS), $(MAKE) -C $(lib)/build/ clean)	
+	$(foreach lib, $(LIBS), $(MAKE) -C $(lib)/build/ clean;)	
 	rm -f $(EXE) $(EXETEST) $(TESTOUTFILE)
 	
 

@@ -13,6 +13,7 @@
  */
 Result assign(node_t *target, node_t source){
 	TRACE_IN
+	memset(target, 0, sizeof(node_t) );
 	if ( (target->service_name = malloc(strlen(source.service_name)+1)) != NULL ){
 		memset(target->service_name, 0, strlen(source.service_name)+1 );
 		strcpy(target->service_name, source.service_name);
@@ -20,7 +21,7 @@ Result assign(node_t *target, node_t source){
 		TRACE_OUT
 		return Success;
 	}
-	LOG("malloc failed")
+	LOG("Memory allocation failed")
 	TRACE_OUT
 	return Memory_Failure;
 }
@@ -98,11 +99,16 @@ Result List_insert(List_t *ls, node_t node_data){
 			}
 		}else{
 			LOG("memory reallocate intervals")
-			if ( (ls->point = realloc( ls->point, (ls->number_of_data+interval) * sizeof(node_t))) == NULL ){
+	printf("Realloc(%ld, %lu)\n", (long)ls->data, (ls->number_of_data+interval) * sizeof(node_t) );
+			void *new_ptr;
+			if ( (new_ptr = realloc( ls->data, (ls->number_of_data+interval)*sizeof(node_t) )  ) == NULL ){
 				LOG("realloc failed")
 				TRACE_OUT
 				return Memory_Failure;
 			}
+			if ( ls->point != NULL)
+				ls->point = ls->point - ls->data + new_ptr;
+			ls->data = new_ptr;
 		}
 	}
 	if ( ls->point == NULL ){
@@ -115,27 +121,91 @@ Result List_insert(List_t *ls, node_t node_data){
 		TRACE_OUT
 		return Success;
 	}else{
-		LOG("End data at point. ls->point != NULL");
-		memcpy(ls->point+sizeof(node_t),
-			   ls->point,
-               ls->data + ls->number_of_data*sizeof(void *) - ls->point - sizeof(void*) );
+		LOG("Add data at point. ls->point != NULL");
+		ls->point += sizeof(node_t);
+		memmove(ls->point+sizeof(node_t),
+			    ls->point,
+                ls->data + ls->number_of_data*sizeof(node_t) - ls->point );
+		LOG("After memmove\n")
+		printf("%s\n", (*((node_t*)ls->point + 1) ).service_name);
+		printf("%s\n", (*((node_t*)ls->point ) ).service_name);
 		assign( (node_t*)(ls->point), node_data);
+		printf("%s\n", (*((node_t*)ls->point ) ).service_name);
+		ls->point += sizeof(node_t);
 	}
+	ls ->number_of_data += 1;
 	TRACE_OUT
 	return Success;
 }
 
 Result List_insert_first(List_t *ls, node_t node){
-
+	TRACE_IN
+	if ( is_out_of_bounds_list(*ls) )LOG("List out of bounds")
+	if ( ls->number_of_data % interval == 0 ){
+		if ( ls->number_of_data == 0){
+			LOG("memory allocate 1st interval")
+			if ( (ls->data = malloc(interval*sizeof(node_t))) == NULL ){
+				LOG("malloc failed");
+				TRACE_OUT
+				return Memory_Failure;
+			}
+		}else{
+			LOG("memory reallocate intervals")
+			void *new_ptr;
+			if ( (new_ptr = realloc( ls->data, (ls->number_of_data+interval)*sizeof(node_t) )  ) == NULL ){
+				LOG("realloc failed")
+				TRACE_OUT
+				return Memory_Failure;
+			}
+			if ( ls->point != NULL)
+				ls->point = ls->point - ls->data + new_ptr;
+			ls->data = new_ptr;
+		}
+	}
+	memmove(ls->data+sizeof(node_t),
+		   ls->data,
+           ls->number_of_data*sizeof(node_t) );
+	assign( (node_t*)(ls->data), node);
+	ls->number_of_data += 1;
+	if ( ls->point != NULL){
+		ls->point += sizeof(node_t);
+	}
+	TRACE_OUT
 	return Success;
 }
 
 Result List_insert_last(List_t *ls, node_t node){
+	TRACE_IN
+	if ( is_out_of_bounds_list(*ls) )LOG("List out of bounds")
+	if ( ls->number_of_data % interval == 0 ){
+		if ( ls->number_of_data == 0){
+			LOG("memory allocate 1st interval")
+			if ( (ls->data = malloc(interval*sizeof(node_t))) == NULL ){
+				LOG("malloc failed");
+				TRACE_OUT
+				return Memory_Failure;
+			}
+		}else{
+			LOG("memory reallocate intervals")
+			void *new_ptr;
+			if ( (new_ptr = realloc( ls->data, (ls->number_of_data+interval)*sizeof(node_t) )  ) == NULL ){
+				LOG("realloc failed")
+				TRACE_OUT
+				return Memory_Failure;
+			}
+			if ( ls->point != NULL)
+				ls->point = ls->point - ls->data + new_ptr;
+			ls->data = new_ptr;
+		}
+	}
+	assign( (node_t*)(ls->data + ls->number_of_data*sizeof(node_t) ), node);
+	ls->number_of_data += 1;
+	TRACE_OUT
 	return Success;
 }
 
 /**
- * List show procedyres
+ * List show procedures
  */
 Result List_show(List_t ls, node_t *node)
 {
@@ -150,8 +220,6 @@ Result List_show(List_t ls, node_t *node)
 	}
 	if ( ls.point == NULL){
 		*node = *(node_t*)(ls.data + (ls.number_of_data - 1)*sizeof(node_t) );
-LOG("delete this line")
-printf("%s - %ld\n", node->service_name, (long)node->data_ptr);
 		TRACE_OUT
 		return Success;
 	}else{
@@ -174,7 +242,30 @@ Result List_show_last(List_t ls, node_t *node){
 	TRACE_IN
 	if ( is_empty_list(ls) )return Empty_list;
 	*node = *(node_t*)(ls.data + (ls.number_of_data - 1)*sizeof(node_t) );
-	printf("%s - %ld\n", node->service_name, (long)node->data_ptr);
+	TRACE_OUT
+	return Success;
+}
+
+Result List_delete_i(List_t *ls, int i, node_t *node){
+	assign( node, *(node_t*)(ls->data + i*sizeof(node_t) ) );
+	clean_node( *((node_t*)ls->data + i) );
+	memmove(ls->data + i*sizeof(node_t),
+			ls->data + (i+1)*sizeof(node_t),
+			(ls->number_of_data-i-1)*sizeof(node_t) );
+	ls->number_of_data -= 1;
+	if ( ls->number_of_data % interval == 0 ){
+		LOG("Reduce size")
+		void *new_ptr;
+		if ( (new_ptr = realloc( ls->data, (ls->number_of_data)*sizeof(node_t) )  ) == NULL ){
+			LOG("realloc failed")
+			TRACE_OUT
+			return Memory_Failure;
+		}
+		if ( ls->point != NULL)
+			ls->point = ls->point - ls->data + new_ptr;
+		ls->data = new_ptr;
+	}
+
 	TRACE_OUT
 	return Success;
 }
@@ -182,22 +273,39 @@ Result List_show_last(List_t ls, node_t *node){
 Result List_delete(List_t *ls, const char *service_name, node_t *node){
 	TRACE_IN
 	if ( is_empty_list(*ls) )return Empty_list;
-	TRACE_OUT
-	return Success;
+	int i, found = 0;
+	for ( i = 0; i < ls->number_of_data; i++ ){
+		if ( strcmp( ( (node_t*)ls->data + i )->service_name, service_name ) == 0){
+			found = 1;
+			break;
+		}
+	}
+	if ( !found )
+	{
+		TRACE_OUT
+		return Request_data_not_found;
+	}
+	return List_delete_i(ls, i, node);
 }
 
 Result List_delete_first(List_t *ls, node_t *node){
 	TRACE_IN
-	if ( is_empty_list(*ls) )return Empty_list;
+	if ( is_empty_list(*ls) ){
+		TRACE_OUT
+		return Empty_list;
+	}
 	TRACE_OUT
-	return Success;
+	return List_delete_i(ls, 0, node);
 }
 
 Result List_delete_last(List_t *ls, node_t *node){
 	TRACE_IN
-	if ( is_empty_list(*ls) )return Empty_list;
+	if ( is_empty_list(*ls) ){
+		TRACE_OUT
+		return Empty_list;
+	}
 	TRACE_OUT
-	return Success;
+	return List_delete_i(ls,ls->number_of_data, node);
 }
 
 Result List_first(List_t *ls){
@@ -241,11 +349,12 @@ Result List_previous(List_t *ls){
 	if ( is_empty_list(*ls) )return Empty_list;
 	if ( ls->point == NULL ){
 		LOG("point at end")
-		ls->point = ls->data;
+		ls->point = ls->data + (ls->number_of_data - 1)*sizeof(node_t);
 		TRACE_OUT
 		return Success;
 	}
 	if ( ls->data == ls->point ){
+		LOG("Point at begin. Return last node")
 		ls->point = ls->data + (ls->number_of_data - 1)*sizeof(node_t);
 		TRACE_OUT
 		return Rewind_list;
@@ -253,5 +362,21 @@ Result List_previous(List_t *ls){
 	ls->point -= sizeof(node_t);
 	TRACE_OUT
 	return Success;
+}
+
+void *List_get_data_ptr(List_t ls,const char *service_name){
+	TRACE_IN
+	if ( is_empty_list(ls) )return NULL;
+	int i;
+	for ( i = 0; i < ls.number_of_data; i++ ){
+		if ( strcmp( ( (node_t*)ls.data + i )->service_name, service_name ) == 0){
+			LOG("Request data not found")
+			TRACE_OUT
+			return ( (node_t*)ls.data + i )->data_ptr;
+		}
+	}
+	LOG("Request data not found")
+	TRACE_OUT
+	return NULL;
 }
 

@@ -11,6 +11,7 @@ typedef enum{
 	Unknown_Failure,
 	Memory_Failure,
 	Empty_list,
+	Empty_stack,
 	List_out_of_bounds,
 	Rewind_list,
 	Request_data_not_found,

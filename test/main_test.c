@@ -21,5 +21,6 @@ int main(int argc , char *argv[]){
 
 	/* Run test cases */
 	PRINT_RESULT( test_suite_0() )
+	PRINT_RESULT( test_suite_1() )
 	return evaluate();
 }

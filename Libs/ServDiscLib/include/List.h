@@ -30,6 +30,7 @@ Result List_insert_last(List_t *ls, node_t node);
 Result List_delete(List_t *ls, const char *service_name, node_t *node);
 Result List_delete_first(List_t *ls, node_t *node);
 Result List_delete_last(List_t *ls, node_t *node);
+Result List_delete_here(List_t *ls);
 
 Result List_show(List_t ls, node_t *node);
 Result List_show_first(List_t ls, node_t *node);

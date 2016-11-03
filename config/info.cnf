@@ -1,0 +1,27 @@
+############################################
+#Info file
+#
+############################################
+#Supported data types:
+#INT
+#CHAR(NUM)
+#STRING
+############################################
+#
+# Lines should begin with '!'
+# Data format may have: { "Attribute" value format} or string format with delimiters <val>;<val>
+#
+# Service can have whatever data
+# unit keeps info about ifs 
+
+!#START
+!SERVICE=test1!
+!PATH=/serviceDiscovery/path1/test1!
+!ACTION=WR!
+!ATTRIBUTES=ES!
+!DATA_FORMAT={"name"=:STRING:, "ip"=:STRING:, "port"=:INT:, "unit"=:CHAR(6):, "status"=::}!
+
+!UNIT=unit!
+!PATH=/serviceDiscovery/path1/unit!
+!ACTION=W!
+!#END
