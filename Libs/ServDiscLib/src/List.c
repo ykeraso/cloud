@@ -99,7 +99,6 @@ Result List_insert(List_t *ls, node_t node_data){
 			}
 		}else{
 			LOG("memory reallocate intervals")
-	printf("Realloc(%ld, %lu)\n", (long)ls->data, (ls->number_of_data+interval) * sizeof(node_t) );
 			void *new_ptr;
 			if ( (new_ptr = realloc( ls->data, (ls->number_of_data+interval)*sizeof(node_t) )  ) == NULL ){
 				LOG("realloc failed")
@@ -127,10 +126,7 @@ Result List_insert(List_t *ls, node_t node_data){
 			    ls->point,
                 ls->data + ls->number_of_data*sizeof(node_t) - ls->point );
 		LOG("After memmove\n")
-		printf("%s\n", (*((node_t*)ls->point + 1) ).service_name);
-		printf("%s\n", (*((node_t*)ls->point ) ).service_name);
 		assign( (node_t*)(ls->point), node_data);
-		printf("%s\n", (*((node_t*)ls->point ) ).service_name);
 		ls->point += sizeof(node_t);
 	}
 	ls ->number_of_data += 1;

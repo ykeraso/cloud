@@ -47,7 +47,7 @@ State StateStack_show(State_stack_t st){
 	if ( is_empty(st) ){
 		LOG("Empty stack")
 		TRACE_OUT
-		return 0;
+		return None_st;
 	}
 	TRACE_OUT
 	return st.top->st;
