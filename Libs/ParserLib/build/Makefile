@@ -16,15 +16,12 @@ TARGET  = libParserLib.so
 #debug level
 ifeq ($(D),error)
 	DEBUG_LEVEL=1
-	C99=-std=c99
 else 
 	ifeq ($(D),trace)
 		DEBUG_LEVEL=2
-		C99=--std=c99
 	else
 		ifeq ($(D),all)
 			DEBUG_LEVEL=3
-			C99=--std=c99
 		else
 			DEBUG_LEVEL=0
 		endif
@@ -36,16 +33,15 @@ DFLAGS=-DDEBUG_LEVEL=$(DEBUG_LEVEL)
 
 
 # Source file of Lib
-SOURCES = \
-	../src/state_stack.c 
-	
+SOURCEDIR = ../src/
+SOURCES := $(wildcard $(SOURCEDIR)*.c)	
 BASESRC = $(foreach file, $(SOURCES), $(notdir $(file) ) )
 OBJECT := $(BASESRC:.c=.o)
 
 all: obj $(TARGET)
 
 obj:
-	$(foreach file, $(SOURCES), ($(GCC) $(CFLO) $(file) $(CINLIB) $(CIN) $(C99) $(DFLAGS) ))
+	$(foreach file, $(SOURCES), $(GCC) $(CFLO) $(file) $(CINLIB) $(CIN) $(C99) $(DFLAGS); )
 
 $(TARGET):
 	$(GCC) $(CFLSO) $(TARGET) $(OBJECT)

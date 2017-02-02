@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "testsuitedef.h"
-#include "unimacros.h"
+#include "../utest/unimacros.h"
 
 #define PRINT_RESULT( ev ) \
 	printf("\n... Test suite finished. %d test cases failed\n", (ev));

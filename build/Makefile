@@ -41,8 +41,10 @@ LIBLINK := $(foreach lib, $(LIBS), -L$(BASEDIR)/$(lib)/build -l$(notdir $(lib)) 
 MAIN_C=$(ROOTSRC)main/main.c
 MAIN_O=$(OUTDIR)main.o
 
-SRC_C=$(ROOTSRC)my_src/src.c
-SRC_O=$(OUTDIR)src.o
+SRC_C= \
+	$(ROOTSRC)my_src/Buffer.c 
+
+SRC_O=$(OUTDIR)Buffer.o
 
 OBJS=$(MAIN_O) $(SRC_O) $(TEST_O)
 

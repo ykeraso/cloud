@@ -9,6 +9,7 @@ typedef enum{
 typedef enum{
 	Success,
 	Unknown_Failure,
+	Assert_Failure,
 	Memory_Failure,
 	Empty_list,
 	Empty_stack,
@@ -17,5 +18,7 @@ typedef enum{
 	Request_data_not_found,
 	Max_Error_Num
 }Result;
+
+extern Result assert_error;
 
 #endif

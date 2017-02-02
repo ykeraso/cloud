@@ -16,15 +16,12 @@ TARGET  = libServDiscLib.so
 #debug level
 ifeq ($(D),error)
 	DEBUG_LEVEL=1
-	C99=-std=c99
 else 
 	ifeq ($(D),trace)
 		DEBUG_LEVEL=2
-		C99=--std=c99
 	else
 		ifeq ($(D),all)
 			DEBUG_LEVEL=3
-			C99=--std=c99
 		else
 			DEBUG_LEVEL=0
 		endif
