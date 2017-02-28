@@ -33,13 +33,13 @@ void clear_test_suite_1(){
 /**
  * Test cases
  */
-Result S1_test1(){
+Result test1(){
 	StateStack_push( &st, Start_st);
 	if ( StateStack_show(st) == Start_st )return Success;
 	else return Unknown_Failure;
 }
 
-Result S1_test2(){
+Result test2(){
 	Result res;
 	res = StateStack_push( &st, Attribute_st);
 	if ( res != Success)return res;
@@ -60,8 +60,8 @@ int test_suite_1(){
 	TEST(testnum++, "StateStack_create returns an empty stack", st.l == File AND st.top == NULL);
 	TEST(testnum++, "StateStack_show returns None_st", StateStack_show(st) == None_st);
 	TEST(testnum++, "StateStack_pop returns Empty_stack", StateStack_pop(&st) == Empty_stack);
-	TEST(testnum++, "Add correctly a state on stack", S1_test1() == Success);
-	TEST(testnum++, "Add one more state on stack and pop 2 gives empty stack", S1_test2() == Success );
+	TEST(testnum++, "Add correctly a state on stack", test1() == Success);
+	TEST(testnum++, "Add one more state on stack and pop 2 gives empty stack", test2() == Success );
 	clear_test_suite_1();
 	return suite_eval();
 

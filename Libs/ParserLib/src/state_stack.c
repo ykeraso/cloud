@@ -75,7 +75,6 @@ Result StateStack_pop(State_stack_t *st){
 	}
 	Stack_t *top = (Stack_t*)st->top->pr;
 	free(st->top);
-	st->top = NULL;
 	st->top = top;
 	TRACE_OUT
 	return Success;
