@@ -15,7 +15,8 @@ typedef enum{
 	None,
 	File,
 	Line,
-	Data
+	Data,
+	MAX_LEVEL
 }__level_enum;
 
 /**

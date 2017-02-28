@@ -35,6 +35,11 @@ __trs __LINE_trs[] = {
 Result Transition(State_stack_t *state_stack, int level, __state_enum next_state){
 	TRACE_IN
 	Result ret;
+	CHECK( "Level in state stack", level <= None || level >= MAX_LEVEL)
+	if (assert_error){
+		TRACE_OUT
+		return Unknown_Failure;
+	}
 	if ( state_stack ->l == None){
 		LOG("Stack for states will be created for level : %d\n", level)
 		*state_stack = StateStack_create(level);
